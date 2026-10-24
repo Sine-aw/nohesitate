@@ -12,7 +12,7 @@ public class LichOrb : MonoBehaviour
     {
         moveDirection = direction.normalized;
         damage += damageBonus;
-        Destroy(gameObject, lifeTime); // 일정 시간 후 자동 소멸
+        Destroy(gameObject, lifeTime);
     }
 
     private void Update()

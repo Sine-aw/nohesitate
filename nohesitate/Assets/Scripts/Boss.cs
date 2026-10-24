@@ -1,24 +1,30 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class Boss : MonoBehaviour
 {
-    [Header("기본 스탯")]
+    [Header("기본 스탯 (최대 체력 100)")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
 
     [Header("타겟 플레이어")]
     [SerializeField] private Transform playerTransform;
 
-    [Header("스킬 프리팹")]
+    [Header("스킬 프리팹 (1페이즈 / 공용)")]
     [SerializeField] private GameObject minionPrefab;
     [SerializeField] private GameObject orbPrefab;
-    [SerializeField] private Transform spawnPoint; // 구체/쫄 소환 위치 (없을 시 보스 위치 사용)
+    [SerializeField] private Transform spawnPoint;
+
+    [Header("스킬 프리팹 (2페이즈 전용)")]
+    [SerializeField] private GameObject laserWarningPrefab;
+    [SerializeField] private GameObject laserPrefab;
+    [SerializeField] private GameObject giantOrbPrefab;
 
     [Header("2페이즈 및 이펙트 설정")]
-    [SerializeField] private GameObject phase2EnterEffect; // 2페이즈 진입 시 퍼지는 이펙트
-    [SerializeField] private GameObject phase2AuraEffect;  // 2페이즈 동안 켜지는 지속 오라 이펙트
+    [SerializeField] private GameObject phase2EnterEffect;
+    [SerializeField] private GameObject phase2AuraEffect;
     [SerializeField] private float phase2DamageBonus = 10f;
 
     [Header("UI 연결")]
@@ -30,11 +36,15 @@ public class Boss : MonoBehaviour
 
     private float minionSkillTimer = 0f;
     private float orbSkillTimer = 0f;
+    private float phase2SkillTimer = 0f;
+    private int orbCastCount = 0;
 
     [Header("스킬 쿨타임(초)")]
-    [SerializeField] private float minionSkillCooldown = 8f;
+    [SerializeField] private float minionRespawnDelay = 15f;
     [SerializeField] private float orbSkillCooldown = 4f;
+    [SerializeField] private float phase2SpecialCooldown = 6f;
 
+    private bool activeMinionsExist = false;
     private Coroutine stunCoroutine;
     private Coroutine debuffCoroutine;
 
@@ -54,45 +64,69 @@ public class Boss : MonoBehaviour
 
     private void Update()
     {
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard != null && keyboard.f1Key.wasPressedThisFrame)
+        {
+            TakeDamage(10f);
+        }
+
         if (currentHealth <= 0 || isStunned) return;
 
-        // 스킬 쿨타임 계산
-        minionSkillTimer += Time.deltaTime;
         orbSkillTimer += Time.deltaTime;
-
         if (orbSkillTimer >= orbSkillCooldown)
         {
-            CastOrbSkill();
+            orbCastCount++;
+
+            if (isPhase2 && orbCastCount % 3 == 0)
+            {
+                CastGiantOrbSkill();
+            }
+            else
+            {
+                CastOrbSkill();
+            }
+
             orbSkillTimer = 0f;
         }
 
-        if (minionSkillTimer >= minionSkillCooldown)
+        if (!activeMinionsExist)
         {
-            CastMinionSkill();
-            minionSkillTimer = 0f;
+            minionSkillTimer += Time.deltaTime;
+            if (minionSkillTimer >= minionRespawnDelay)
+            {
+                CastMinionSkill();
+                minionSkillTimer = 0f;
+            }
+        }
+
+        if (isPhase2)
+        {
+            phase2SkillTimer += Time.deltaTime;
+            if (phase2SkillTimer >= phase2SpecialCooldown)
+            {
+                if (Random.value > 0.5f)
+                {
+                    CastLaserSkill();
+                }
+                else
+                {
+                    TeleportAttack();
+                }
+                phase2SkillTimer = 0f;
+            }
         }
     }
 
-    // 1. 구체 발사 스킬
     private void CastOrbSkill()
     {
         if (orbPrefab == null) return;
-
-        // playerTransform이 비어있으면 재생성/재검색
-        if (playerTransform == null)
-        {
-            GameObject playerObj = GameObject.FindWithTag("Player");
-            if (playerObj != null) playerTransform = playerObj.transform;
-            else return;
-        }
+        CheckPlayer();
+        if (playerTransform == null) return;
 
         Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position;
-
-        // Y축 높이를 맞춘 상태에서 플레이어 방향 계산
         Vector3 targetPos = new Vector3(playerTransform.position.x, spawnPos.y, playerTransform.position.z);
         Vector3 dir = (targetPos - spawnPos).normalized;
-
-        if (dir == Vector3.zero) dir = transform.forward; // 방향을 못 잡을 경우 보스 정면으로 발사
+        if (dir == Vector3.zero) dir = transform.forward;
 
         GameObject orbObj = Instantiate(orbPrefab, spawnPos, Quaternion.LookRotation(dir));
         if (orbObj.TryGetComponent<LichOrb>(out var orb))
@@ -101,17 +135,36 @@ public class Boss : MonoBehaviour
         }
     }
 
-    // 2. 쫄다구 3마리 소환 스킬
-    private void CastMinionSkill()
+    private void CastGiantOrbSkill()
     {
-        if (minionPrefab == null || playerTransform == null) return;
+        if (giantOrbPrefab == null) return;
+        CheckPlayer();
+        if (playerTransform == null) return;
 
         Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position;
+        Vector3 targetPos = new Vector3(playerTransform.position.x, spawnPos.y, playerTransform.position.z);
+        Vector3 dir = (targetPos - spawnPos).normalized;
+        if (dir == Vector3.zero) dir = transform.forward;
+
+        GameObject giantOrb = Instantiate(giantOrbPrefab, spawnPos, Quaternion.LookRotation(dir));
+        if (giantOrb.TryGetComponent<LichOrb>(out var orb))
+        {
+            orb.Init(dir, phase2DamageBonus + 15f);
+        }
+    }
+
+    private void CastMinionSkill()
+    {
+        if (minionPrefab == null) return;
+        CheckPlayer();
+        if (playerTransform == null) return;
+
+        Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position;
+        activeMinionsExist = true;
 
         for (int i = 0; i < 3; i++)
         {
-            // 약간의 렌덤 위치 오프셋 추가
-            Vector3 offset = new Vector3(Random.Range(-1.5f, 1.5f), 0, Random.Range(-1.5f, 1.5f));
+            Vector3 offset = new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
             GameObject minionObj = Instantiate(minionPrefab, spawnPos + offset, Quaternion.identity);
 
             if (minionObj.TryGetComponent<LichMinion>(out var minion))
@@ -119,9 +172,72 @@ public class Boss : MonoBehaviour
                 minion.Init(playerTransform, isPhase2 ? phase2DamageBonus : 0f);
             }
         }
+
+        StartCoroutine(CheckMinionsAliveRoutine());
     }
 
-    // 보스 피격
+    private IEnumerator CheckMinionsAliveRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1.5f);
+            if (GameObject.FindGameObjectsWithTag("Minion").Length == 0)
+            {
+                minionSkillTimer = 0f;
+                activeMinionsExist = false;
+                break;
+            }
+        }
+    }
+
+    private void CastLaserSkill()
+    {
+        if (laserWarningPrefab == null || laserPrefab == null) return;
+        CheckPlayer();
+        if (playerTransform == null) return;
+
+        Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position;
+        Vector3 targetPos = new Vector3(playerTransform.position.x, spawnPos.y, playerTransform.position.z);
+        Vector3 dir = (targetPos - spawnPos).normalized;
+        if (dir == Vector3.zero) dir = transform.forward;
+
+        float laserHalfLength = 7.5f;
+        Vector3 adjustedSpawnPos = spawnPos + (dir * laserHalfLength);
+
+        GameObject warningObj = Instantiate(laserWarningPrefab, adjustedSpawnPos, Quaternion.LookRotation(dir));
+        if (warningObj.TryGetComponent<LaserWarningLine>(out var warningLine))
+        {
+            warningLine.Init(laserPrefab, phase2DamageBonus);
+        }
+    }
+
+    private void TeleportAttack()
+    {
+        CheckPlayer();
+        if (playerTransform == null) return;
+
+        Vector3 randomOffset = new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
+        Vector3 teleportPos = playerTransform.position + randomOffset;
+
+        transform.position = teleportPos;
+
+        float meleeDamage = 25f + phase2DamageBonus;
+        if (Vector3.Distance(transform.position, playerTransform.position) <= 3.5f)
+        {
+            PlayerHealth ph = playerTransform.GetComponentInParent<PlayerHealth>();
+            if (ph != null) ph.TakeDamage(meleeDamage);
+        }
+    }
+
+    private void CheckPlayer()
+    {
+        if (playerTransform == null)
+        {
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null) playerTransform = playerObj.transform;
+        }
+    }
+
     public void TakeDamage(float amount)
     {
         float finalDamage = amount * damageMultiplier;
@@ -130,7 +246,6 @@ public class Boss : MonoBehaviour
 
         UpdateUI();
 
-        // 체력 50% 이하 및 2페이즈 미진입 시 전환
         if (!isPhase2 && (currentHealth / maxHealth) <= 0.5f)
         {
             EnterPhase2();
@@ -145,17 +260,15 @@ public class Boss : MonoBehaviour
     private void EnterPhase2()
     {
         isPhase2 = true;
-        Debug.Log("[BOSS] 2페이즈 진입!");
+        Debug.Log("2페이즈 진입");
 
         Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position;
 
-        // 2페이즈 진입 1회성 이펙트
         if (phase2EnterEffect != null)
         {
             Instantiate(phase2EnterEffect, spawnPos, Quaternion.identity);
         }
 
-        // 2페이즈 지속 오라 이펙트 켜기
         if (phase2AuraEffect != null)
         {
             phase2AuraEffect.SetActive(true);
