@@ -93,6 +93,11 @@ public class PlayerHealth : MonoBehaviour
         {
             playerController.enabled = false;
         }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.TriggerGameOver();
+        }
     }
 
     public float CurrentHealth => currentHealth;

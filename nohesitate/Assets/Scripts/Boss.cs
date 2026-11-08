@@ -21,6 +21,7 @@ public class Boss : MonoBehaviour
     [SerializeField] private GameObject laserWarningPrefab;
     [SerializeField] private GameObject laserPrefab;
     [SerializeField] private GameObject giantOrbPrefab;
+    [SerializeField] private GameObject teleportWarningPrefab;
 
     [Header("2페이즈 및 이펙트 설정")]
     [SerializeField] private GameObject phase2EnterEffect;
@@ -110,7 +111,7 @@ public class Boss : MonoBehaviour
                 }
                 else
                 {
-                    TeleportAttack();
+                    StartCoroutine(TeleportAttackRoutine());
                 }
                 phase2SkillTimer = 0f;
             }
@@ -123,15 +124,22 @@ public class Boss : MonoBehaviour
         CheckPlayer();
         if (playerTransform == null) return;
 
-        Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position;
+        Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position + Vector3.up * 0.5f;
         Vector3 targetPos = new Vector3(playerTransform.position.x, spawnPos.y, playerTransform.position.z);
         Vector3 dir = (targetPos - spawnPos).normalized;
         if (dir == Vector3.zero) dir = transform.forward;
 
         GameObject orbObj = Instantiate(orbPrefab, spawnPos, Quaternion.LookRotation(dir));
+
+        if (orbObj.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb.useGravity = false;
+            rb.linearVelocity = dir * 15f;
+        }
+
         if (orbObj.TryGetComponent<LichOrb>(out var orb))
         {
-            orb.Init(dir, isPhase2 ? phase2DamageBonus : 0f);
+            orb.Init(dir, isPhase2 ? phase2DamageBonus : 0f, false);
         }
     }
 
@@ -141,15 +149,12 @@ public class Boss : MonoBehaviour
         CheckPlayer();
         if (playerTransform == null) return;
 
-        Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position;
-        Vector3 targetPos = new Vector3(playerTransform.position.x, spawnPos.y, playerTransform.position.z);
-        Vector3 dir = (targetPos - spawnPos).normalized;
-        if (dir == Vector3.zero) dir = transform.forward;
+        Vector3 spawnPos = spawnPoint != null ? spawnPoint.position : transform.position + Vector3.up * 1.5f;
 
-        GameObject giantOrb = Instantiate(giantOrbPrefab, spawnPos, Quaternion.LookRotation(dir));
+        GameObject giantOrb = Instantiate(giantOrbPrefab, spawnPos, Quaternion.identity);
         if (giantOrb.TryGetComponent<LichOrb>(out var orb))
         {
-            orb.Init(dir, phase2DamageBonus + 15f);
+            orb.InitParabolaToTarget(playerTransform.position, phase2DamageBonus + 15f);
         }
     }
 
@@ -211,15 +216,30 @@ public class Boss : MonoBehaviour
         }
     }
 
-    private void TeleportAttack()
+    private IEnumerator TeleportAttackRoutine()
     {
         CheckPlayer();
-        if (playerTransform == null) return;
+        if (playerTransform == null) yield break;
 
         Vector3 randomOffset = new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
-        Vector3 teleportPos = playerTransform.position + randomOffset;
+        Vector3 targetTeleportPos = playerTransform.position + randomOffset;
+        targetTeleportPos.y = playerTransform.position.y;
 
-        transform.position = teleportPos;
+        GameObject warningIndicator = null;
+        if (teleportWarningPrefab != null)
+        {
+            Vector3 warningPos = new Vector3(targetTeleportPos.x, playerTransform.position.y - 0.98f, targetTeleportPos.z);
+            warningIndicator = Instantiate(teleportWarningPrefab, warningPos, Quaternion.identity);
+        }
+
+        yield return new WaitForSeconds(1.5f);
+
+        if (warningIndicator != null)
+        {
+            Destroy(warningIndicator);
+        }
+
+        transform.position = targetTeleportPos;
 
         float meleeDamage = 25f + phase2DamageBonus;
         if (Vector3.Distance(transform.position, playerTransform.position) <= 3.5f)

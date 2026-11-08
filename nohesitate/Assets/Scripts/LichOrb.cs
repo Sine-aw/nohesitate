@@ -2,34 +2,52 @@ using UnityEngine;
 
 public class LichOrb : MonoBehaviour
 {
-    [SerializeField] private float speed = 10f;
-    [SerializeField] private float damage = 15f;
-    [SerializeField] private float lifeTime = 5f;
+    private Rigidbody rb;
 
-    private Vector3 moveDirection;
-
-    public void Init(Vector3 direction, float damageBonus)
+    private void Awake()
     {
-        moveDirection = direction.normalized;
-        damage += damageBonus;
-        Destroy(gameObject, lifeTime);
+        rb = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    public void Init(Vector3 dir, float damageBonus, bool isParabola = false)
     {
-        transform.position += moveDirection * speed * Time.deltaTime;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
+        if (rb != null)
         {
-            PlayerHealth playerHealth = other.GetComponentInParent<PlayerHealth>();
-            if (playerHealth != null)
+            if (isParabola)
             {
-                playerHealth.TakeDamage(damage);
+                rb.useGravity = true;
+                rb.linearVelocity = (dir + Vector3.up * 0.8f).normalized * 15f;
             }
-            Destroy(gameObject);
+            else
+            {
+                rb.useGravity = false;
+                rb.linearVelocity = dir * 15f;
+            }
         }
+    }
+
+    public void InitParabolaToTarget(Vector3 targetPos, float damageBonus)
+    {
+        if (rb == null) return;
+
+        rb.useGravity = true;
+
+        Vector3 startPos = transform.position;
+        float gravity = Physics.gravity.y;
+
+        float heightOffset = 6f;
+
+        float displacementY = targetPos.y - startPos.y;
+        Vector3 displacementXZ = new Vector3(targetPos.x - startPos.x, 0, targetPos.z - startPos.z);
+
+        float time = Mathf.Sqrt(-2f * heightOffset / gravity) + Mathf.Sqrt(2f * (displacementY - heightOffset) / gravity);
+        if (float.IsNaN(time) || time <= 0f) time = 1.5f;
+
+        Vector3 velocityXZ = displacementXZ / time;
+        float velocityY = (displacementY - 0.5f * gravity * time * time) / time;
+
+        Vector3 launchVelocity = velocityXZ + Vector3.up * velocityY;
+
+        rb.linearVelocity = launchVelocity;
     }
 }

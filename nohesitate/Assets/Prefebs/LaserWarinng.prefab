@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2266721699892993695}
   - component: {fileID: 3917850887965427689}
   - component: {fileID: 5474605894883730568}
-  - component: {fileID: 1141750290194488907}
   - component: {fileID: 8352580986955700086}
   m_Layer: 0
   m_Name: LaserWarinng
@@ -92,27 +91,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &1141750290194488907
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 827642199181569113}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8352580986955700086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,5 +103,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49542fd9656e56f40a064c304e20fe83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LaserWarningLine
-  realLaserPrefab: {fileID: 0}
+  realLaserPrefab: {fileID: 3096268752725675144, guid: 9bf76e515e6b2274e93b8ebe84d5780d, type: 3}
   warningDuration: 1

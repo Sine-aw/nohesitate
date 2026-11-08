@@ -41,7 +41,7 @@ public class PressurePlate : MonoBehaviour
 
         if (lastSteppedPlateType.HasValue && lastSteppedPlateType.Value == plateType)
         {
-            Debug.Log($"[발판] {plateType} 발판은 연속으로 밟을 수 없습니다! 다른 발판을 먼저 밟으세요.");
+            Debug.Log($"{plateType} 발판은 연속으로 밟을 수 없습니다 다른 발판을 먼저 밟으세요.");
             return;
         }
 
