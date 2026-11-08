@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6022092730196478560}
   - component: {fileID: 6578710923512393433}
   - component: {fileID: 9118722154007392519}
+  - component: {fileID: -5089193101446663566}
   m_Layer: 0
   m_Name: BigOrb
   m_TagString: Untagged
@@ -126,5 +127,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LichOrb
   speed: 3
-  damage: 45
-  lifeTime: 30
+  isParabola: 1
+--- !u!54 &-5089193101446663566
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9124458434206387986}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
