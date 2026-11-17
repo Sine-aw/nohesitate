@@ -20,18 +20,32 @@ public class StageDoor : MonoBehaviour
             case DoorType.Stage1_Next:
                 if (!string.IsNullOrEmpty(targetSceneName))
                 {
-                    SceneManager.LoadScene(targetSceneName);
-                }
-                else
-                {
-                    Debug.LogWarning("이동할 씬이 비어 있습니다");
+                    DisablePlayerControl(other.gameObject);
+
+                    if (SceneFader.Instance != null)
+                    {
+                        SceneFader.Instance.FadeToScene(targetSceneName);
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene(targetSceneName);
+                    }
                 }
                 break;
 
             case DoorType.Stage2_Real:
                 if (!string.IsNullOrEmpty(targetSceneName))
                 {
-                    SceneManager.LoadScene(targetSceneName);
+                    DisablePlayerControl(other.gameObject);
+
+                    if (SceneFader.Instance != null)
+                    {
+                        SceneFader.Instance.FadeToScene(targetSceneName);
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene(targetSceneName);
+                    }
                 }
                 break;
 
@@ -41,6 +55,28 @@ public class StageDoor : MonoBehaviour
                     GameManager.Instance.TriggerGameOver();
                 }
                 break;
+        }
+    }
+
+    private void DisablePlayerControl(GameObject player)
+    {
+        PlayerController controller = player.GetComponent<PlayerController>();
+        if (controller != null)
+        {
+            controller.enabled = false;
+        }
+
+        Rigidbody rb = player.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        CharacterController cc = player.GetComponent<CharacterController>();
+        if (cc != null)
+        {
+            cc.enabled = false;
         }
     }
 }
