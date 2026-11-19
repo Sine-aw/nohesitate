@@ -462,6 +462,11 @@ MonoBehaviour:
   minionRespawnDelay: 15
   orbSkillCooldown: 4
   phase2SpecialCooldown: 6
+--- !u!1 &377823898 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9030785783640292202, guid: 01bd563e817129a4f8382c1d08be36b0, type: 3}
+  m_PrefabInstance: {fileID: 2523971419722464674}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &389675454 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3668726186130966084, guid: 68ad8265cac00f84fa3778d8ff70b2b1, type: 3}
@@ -697,6 +702,16 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &839543551 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5251728863189466389, guid: 01bd563e817129a4f8382c1d08be36b0, type: 3}
+  m_PrefabInstance: {fileID: 2523971419722464674}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1933254819 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4389054459971752108, guid: 01bd563e817129a4f8382c1d08be36b0, type: 3}
+  m_PrefabInstance: {fileID: 2523971419722464674}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1984169532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1367,15 +1382,15 @@ PrefabInstance:
     - target: {fileID: 3668726186130966084, guid: 68ad8265cac00f84fa3778d8ff70b2b1, type: 3}
       propertyPath: gameOverPanel
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1933254819}
     - target: {fileID: 3668726186130966084, guid: 68ad8265cac00f84fa3778d8ff70b2b1, type: 3}
       propertyPath: settingsPanel
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 377823898}
     - target: {fileID: 3668726186130966084, guid: 68ad8265cac00f84fa3778d8ff70b2b1, type: 3}
       propertyPath: pauseMenuPanel
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 839543551}
     - target: {fileID: 7020724368402328868, guid: 68ad8265cac00f84fa3778d8ff70b2b1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 313.4342
@@ -1595,6 +1610,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4744700651963019884, guid: 880b79a684a0f2f40bffc0fd97eb5b6e, type: 3}
+      propertyPath: cameraTransform
+      value: 
+      objectReference: {fileID: 330585546}
     - target: {fileID: 5017224222363214456, guid: 880b79a684a0f2f40bffc0fd97eb5b6e, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1624,7 +1643,7 @@ PrefabInstance:
     - target: {fileID: 50503318385224425, guid: 86f2e60e4b15ded4585eab00e1b8a924, type: 3}
       propertyPath: target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8041642108202249610}
     - target: {fileID: 685316706138465451, guid: 86f2e60e4b15ded4585eab00e1b8a924, type: 3}
       propertyPath: m_Name
       value: Main Camera
