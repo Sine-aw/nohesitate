@@ -10,6 +10,11 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float distance = 7f;
     [SerializeField] private float height = 1.5f;
 
+    [Header("벽 충돌 방지")]
+    [SerializeField] private LayerMask obstacleMask = ~0;
+    [SerializeField] private float cameraRadius = 0.25f;
+    [SerializeField] private float collisionBuffer = 0.15f;
+
     [Header("마우스 회전")]
     [SerializeField] private float mouseSensitivity = 0.12f;
     [SerializeField] private float minVerticalAngle = -30f;
@@ -63,13 +68,24 @@ public class ThirdPersonCamera : MonoBehaviour
         }
 
         Vector3 lookPoint = target.position + Vector3.up * height;
-
         Quaternion orbitRotation = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 castDirection = (orbitRotation * Vector3.back).normalized;
 
-        Vector3 cameraOffset = orbitRotation * new Vector3(0f, 0f, -distance);
+        float currentDistance = distance;
 
-        transform.position = lookPoint + cameraOffset;
+        if (Physics.SphereCast(
+            lookPoint,
+            cameraRadius,
+            castDirection,
+            out RaycastHit hit,
+            distance,
+            obstacleMask,
+            QueryTriggerInteraction.Ignore))
+        {
+            currentDistance = Mathf.Clamp(hit.distance - collisionBuffer, 0.2f, distance);
+        }
 
+        transform.position = lookPoint + castDirection * currentDistance;
         transform.LookAt(lookPoint);
     }
 }
