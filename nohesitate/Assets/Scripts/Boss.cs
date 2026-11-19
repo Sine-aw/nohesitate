@@ -31,6 +31,10 @@ public class Boss : MonoBehaviour
     [Header("UI 연결")]
     [SerializeField] private Slider healthSlider;
 
+    [Header("벽 끼임 방지")]
+    [SerializeField] private LayerMask wallLayerMask;
+    [SerializeField] private float wallPadding = 0.7f;
+
     private float damageMultiplier = 1.0f;
     private bool isStunned = false;
     private bool isPhase2 = false;
@@ -221,14 +225,15 @@ public class Boss : MonoBehaviour
         CheckPlayer();
         if (playerTransform == null) yield break;
 
-        Vector3 randomOffset = new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
-        Vector3 targetTeleportPos = playerTransform.position + randomOffset;
-        targetTeleportPos.y = playerTransform.position.y;
+        Vector3 originPos = playerTransform.position;
+        Vector3 randomOffset = new Vector3(Random.Range(-2f, 2f), 0f, Random.Range(-2f, 2f));
+        Vector3 safePos = GetSafeTeleportPosition(originPos, randomOffset);
+        safePos.y = originPos.y;
 
         GameObject warningIndicator = null;
         if (teleportWarningPrefab != null)
         {
-            Vector3 warningPos = new Vector3(targetTeleportPos.x, playerTransform.position.y - 0.98f, targetTeleportPos.z);
+            Vector3 warningPos = new Vector3(safePos.x, originPos.y - 0.98f, safePos.z);
             warningIndicator = Instantiate(teleportWarningPrefab, warningPos, Quaternion.identity);
         }
 
@@ -239,7 +244,7 @@ public class Boss : MonoBehaviour
             Destroy(warningIndicator);
         }
 
-        transform.position = targetTeleportPos;
+        transform.position = safePos;
 
         float meleeDamage = 25f + phase2DamageBonus;
         if (Vector3.Distance(transform.position, playerTransform.position) <= 3.5f)
@@ -247,6 +252,26 @@ public class Boss : MonoBehaviour
             PlayerHealth ph = playerTransform.GetComponentInParent<PlayerHealth>();
             if (ph != null) ph.TakeDamage(meleeDamage);
         }
+    }
+
+    private Vector3 GetSafeTeleportPosition(Vector3 playerPos, Vector3 offset)
+    {
+        float desiredDistance = offset.magnitude;
+        if (desiredDistance <= 0.001f || wallLayerMask.value == 0)
+        {
+            return playerPos + offset;
+        }
+
+        Vector3 dir = offset.normalized;
+        Vector3 rayStart = playerPos + Vector3.up * 0.5f;
+
+        if (Physics.Raycast(rayStart, dir, out RaycastHit hit, desiredDistance + wallPadding, wallLayerMask, QueryTriggerInteraction.Ignore))
+        {
+            float clampedDistance = Mathf.Max(0f, hit.distance - wallPadding);
+            return playerPos + dir * clampedDistance;
+        }
+
+        return playerPos + offset;
     }
 
     private void CheckPlayer()

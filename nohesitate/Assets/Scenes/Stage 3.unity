@@ -443,7 +443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Boss
   maxHealth: 100
   currentHealth: 0
-  playerTransform: {fileID: 1131313339}
+  playerTransform: {fileID: 8041642108202249610}
   minionPrefab: {fileID: 1656343386226184954, guid: aa4b1b5c920acc544b84662f3455810c, type: 3}
   orbPrefab: {fileID: 835826156321013009, guid: f3838bb65606162468c4c886c008928e, type: 3}
   spawnPoint: {fileID: 0}
@@ -455,6 +455,10 @@ MonoBehaviour:
   phase2AuraEffect: {fileID: 0}
   phase2DamageBonus: 10
   healthSlider: {fileID: 2523971419722464676}
+  wallLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  wallPadding: 0.7
   minionRespawnDelay: 15
   orbSkillCooldown: 4
   phase2SpecialCooldown: 6
@@ -693,22 +697,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &1131313339 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 574919842474787484, guid: 880b79a684a0f2f40bffc0fd97eb5b6e, type: 3}
-  m_PrefabInstance: {fileID: 8041642108202249609}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1131313347 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3847349174538450232, guid: 880b79a684a0f2f40bffc0fd97eb5b6e, type: 3}
-  m_PrefabInstance: {fileID: 8041642108202249609}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6c8ef648a2effc4298bcdf353fe762a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
 --- !u!1 &1984169532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1158,7 +1146,7 @@ PrefabInstance:
     - target: {fileID: 4560659284978027956, guid: 01bd563e817129a4f8382c1d08be36b0, type: 3}
       propertyPath: playerHealth
       value: 
-      objectReference: {fileID: 1131313347}
+      objectReference: {fileID: 0}
     - target: {fileID: 4947445119438545015, guid: 01bd563e817129a4f8382c1d08be36b0, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1620,6 +1608,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 880b79a684a0f2f40bffc0fd97eb5b6e, type: 3}
+--- !u!4 &8041642108202249610 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3350057534475935863, guid: 880b79a684a0f2f40bffc0fd97eb5b6e, type: 3}
+  m_PrefabInstance: {fileID: 8041642108202249609}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8548213724600254391
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1631,7 +1624,7 @@ PrefabInstance:
     - target: {fileID: 50503318385224425, guid: 86f2e60e4b15ded4585eab00e1b8a924, type: 3}
       propertyPath: target
       value: 
-      objectReference: {fileID: 1131313339}
+      objectReference: {fileID: 0}
     - target: {fileID: 685316706138465451, guid: 86f2e60e4b15ded4585eab00e1b8a924, type: 3}
       propertyPath: m_Name
       value: Main Camera
