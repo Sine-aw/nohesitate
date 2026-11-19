@@ -2,15 +2,29 @@ using UnityEngine;
 
 public class LichOrb : MonoBehaviour
 {
+    [Header("데미지 설정")]
+    [SerializeField] private float baseDamage = 15f;
+    [SerializeField] private float lifeTime = 8f;
+
     private Rigidbody rb;
+    private float finalDamage;
+    private bool hasHit = false;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        finalDamage = baseDamage;
+    }
+
+    private void Start()
+    {
+        Destroy(gameObject, lifeTime);
     }
 
     public void Init(Vector3 dir, float damageBonus, bool isParabola = false)
     {
+        finalDamage = Mathf.Max(0f, baseDamage + damageBonus);
+
         if (rb != null)
         {
             if (isParabola)
@@ -28,6 +42,8 @@ public class LichOrb : MonoBehaviour
 
     public void InitParabolaToTarget(Vector3 targetPos, float damageBonus)
     {
+        finalDamage = Mathf.Max(0f, baseDamage + damageBonus);
+
         if (rb == null) return;
 
         rb.useGravity = true;
@@ -49,5 +65,31 @@ public class LichOrb : MonoBehaviour
         Vector3 launchVelocity = velocityXZ + Vector3.up * velocityY;
 
         rb.linearVelocity = launchVelocity;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        TryDealDamage(other.gameObject);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        TryDealDamage(collision.gameObject);
+    }
+
+    private void TryDealDamage(GameObject hitObject)
+    {
+        if (hasHit) return;
+
+        if (hitObject.CompareTag("Player"))
+        {
+            hasHit = true;
+            PlayerHealth playerHealth = hitObject.GetComponentInParent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(finalDamage);
+            }
+            Destroy(gameObject);
+        }
     }
 }
