@@ -32,12 +32,14 @@ public class PressurePlate : MonoBehaviour
 
     private void Start()
     {
+        lastSteppedPlateType = null;
         SetModelActive(false);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+        Debug.Log($"[Plate] 밟힘: {name}, Type: {plateType}, Last: {lastSteppedPlateType}, Boss: {targetBoss}");
 
         if (lastSteppedPlateType.HasValue && lastSteppedPlateType.Value == plateType)
         {
@@ -57,8 +59,14 @@ public class PressurePlate : MonoBehaviour
                 playerHealth.AddShield(playerShieldAmount);
             }
         }
-        else if (targetBoss != null)
+        else
         {
+            if (targetBoss == null)
+            {
+                Debug.LogWarning($"{plateType} 발판이 연결되지 않음");
+                return;
+            }
+
             switch (plateType)
             {
                 case PlateType.Red_AttackBoss:
