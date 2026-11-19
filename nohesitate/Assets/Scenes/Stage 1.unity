@@ -258,6 +258,7 @@ GameObject:
   - component: {fileID: 60443457}
   - component: {fileID: 60443456}
   - component: {fileID: 60443455}
+  - component: {fileID: 60443459}
   m_Layer: 0
   m_Name: Cube (4)
   m_TagString: Untagged
@@ -280,7 +281,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -358,6 +359,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &60443459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60443454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25ccaccabffdb1d41a04bac348e43764, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloorDeathZone
 --- !u!1 &186674805
 GameObject:
   m_ObjectHideFlags: 0

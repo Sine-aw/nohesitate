@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class GlassPlate : MonoBehaviour
@@ -20,21 +19,6 @@ public class GlassPlate : MonoBehaviour
         if (plateType == PlateType.Fake)
         {
             gameObject.SetActive(false);
-
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.StartCoroutine(GameOverRoutine());
-            }
-        }
-    }
-
-    private IEnumerator GameOverRoutine()
-    {
-        yield return new WaitForSeconds(3f);
-
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.TriggerGameOver();
         }
     }
 }
