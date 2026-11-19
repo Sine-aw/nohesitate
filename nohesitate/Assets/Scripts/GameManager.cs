@@ -51,21 +51,32 @@ public class GameManager : MonoBehaviour
                 return;
             }
 
+            if (settingsPanel != null && settingsPanel.activeSelf)
+            {
+                OpenSettings(false);
+                return;
+            }
+
             if (isPaused)
             {
-                if (settingsPanel != null && settingsPanel.activeSelf)
-                {
-                    settingsPanel.SetActive(false);
-                }
-                else
-                {
-                    ResumeGame();
-                }
+                ResumeGame();
             }
-            else
+            else if (pauseMenuPanel != null)
             {
                 PauseGame();
             }
+        }
+    }
+
+    public void OpenSettings(bool isOpen)
+    {
+        if (settingsPanel) settingsPanel.SetActive(isOpen);
+
+        if (isOpen)
+        {
+            isPaused = true;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 
@@ -105,11 +116,6 @@ public class GameManager : MonoBehaviour
     public void OnClickResume()
     {
         ResumeGame();
-    }
-
-    public void OpenSettings(bool isOpen)
-    {
-        if (settingsPanel) settingsPanel.SetActive(isOpen);
     }
 
     public void OnBgmSliderChanged(float value)
