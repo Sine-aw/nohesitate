@@ -459,6 +459,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   wallPadding: 0.7
+  endingTrigger: {fileID: 0}
   minionRespawnDelay: 15
   orbSkillCooldown: 4
   phase2SpecialCooldown: 6
@@ -635,7 +636,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossEndingTrigger
   endingSceneName: EndingScene
-  delayBeforeFade: 1.5
+  delayBeforeFade: 0
   fallbackLoadDelay: 0
 --- !u!4 &454783443
 Transform:

@@ -35,9 +35,13 @@ public class Boss : MonoBehaviour
     [SerializeField] private LayerMask wallLayerMask;
     [SerializeField] private float wallPadding = 0.7f;
 
+    [Header("엔딩 씬 전환 (선택, 비워두면 자동 탐색)")]
+    [SerializeField] private BossEndingTrigger endingTrigger;
+
     private float damageMultiplier = 1.0f;
     private bool isStunned = false;
     private bool isPhase2 = false;
+    private bool isDead = false;
 
     private float minionSkillTimer = 0f;
     private float orbSkillTimer = 0f;
@@ -56,6 +60,7 @@ public class Boss : MonoBehaviour
     private void Start()
     {
         currentHealth = maxHealth;
+        isDead = false;
         UpdateUI();
 
         if (playerTransform == null)
@@ -64,11 +69,18 @@ public class Boss : MonoBehaviour
             if (playerObj != null) playerTransform = playerObj.transform;
         }
 
+        if (endingTrigger == null)
+        {
+            endingTrigger = FindFirstObjectByType<BossEndingTrigger>();
+        }
+
         if (phase2AuraEffect != null) phase2AuraEffect.SetActive(false);
     }
 
     private void Update()
     {
+        if (isDead) return;
+
         Keyboard keyboard = Keyboard.current;
         if (keyboard != null && keyboard.f1Key.wasPressedThisFrame)
         {
@@ -124,7 +136,7 @@ public class Boss : MonoBehaviour
 
     private void CastOrbSkill()
     {
-        if (orbPrefab == null) return;
+        if (orbPrefab == null || isDead) return;
         CheckPlayer();
         if (playerTransform == null) return;
 
@@ -149,7 +161,7 @@ public class Boss : MonoBehaviour
 
     private void CastGiantOrbSkill()
     {
-        if (giantOrbPrefab == null) return;
+        if (giantOrbPrefab == null || isDead) return;
         CheckPlayer();
         if (playerTransform == null) return;
 
@@ -164,7 +176,7 @@ public class Boss : MonoBehaviour
 
     private void CastMinionSkill()
     {
-        if (minionPrefab == null) return;
+        if (minionPrefab == null || isDead) return;
         CheckPlayer();
         if (playerTransform == null) return;
 
@@ -187,9 +199,11 @@ public class Boss : MonoBehaviour
 
     private IEnumerator CheckMinionsAliveRoutine()
     {
-        while (true)
+        while (!isDead)
         {
             yield return new WaitForSeconds(1.5f);
+            if (isDead) yield break;
+
             if (GameObject.FindGameObjectsWithTag("Minion").Length == 0)
             {
                 minionSkillTimer = 0f;
@@ -201,7 +215,7 @@ public class Boss : MonoBehaviour
 
     private void CastLaserSkill()
     {
-        if (laserWarningPrefab == null || laserPrefab == null) return;
+        if (laserWarningPrefab == null || laserPrefab == null || isDead) return;
         CheckPlayer();
         if (playerTransform == null) return;
 
@@ -222,6 +236,7 @@ public class Boss : MonoBehaviour
 
     private IEnumerator TeleportAttackRoutine()
     {
+        if (isDead) yield break;
         CheckPlayer();
         if (playerTransform == null) yield break;
 
@@ -238,6 +253,12 @@ public class Boss : MonoBehaviour
         }
 
         yield return new WaitForSeconds(1.5f);
+
+        if (isDead)
+        {
+            if (warningIndicator != null) Destroy(warningIndicator);
+            yield break;
+        }
 
         if (warningIndicator != null)
         {
@@ -285,6 +306,8 @@ public class Boss : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        if (isDead) return;
+
         float finalDamage = amount * damageMultiplier;
         currentHealth -= finalDamage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
@@ -322,6 +345,7 @@ public class Boss : MonoBehaviour
 
     public void ApplyDamageMultiplierForDuration(float multiplier, float duration)
     {
+        if (isDead) return;
         if (debuffCoroutine != null) StopCoroutine(debuffCoroutine);
         debuffCoroutine = StartCoroutine(DamageMultiplierRoutine(multiplier, duration));
     }
@@ -335,6 +359,7 @@ public class Boss : MonoBehaviour
 
     public void StunForDuration(float duration)
     {
+        if (isDead) return;
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
         stunCoroutine = StartCoroutine(StunRoutine(duration));
     }
@@ -353,6 +378,21 @@ public class Boss : MonoBehaviour
 
     private void Die()
     {
+        if (isDead) return;
+        isDead = true;
+
+        StopAllCoroutines();
+
+        if (endingTrigger == null)
+        {
+            endingTrigger = FindFirstObjectByType<BossEndingTrigger>();
+        }
+
+        if (endingTrigger != null)
+        {
+            endingTrigger.GoToEndingScene();
+        }
+
         gameObject.SetActive(false);
     }
 }

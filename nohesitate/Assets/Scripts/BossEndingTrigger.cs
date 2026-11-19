@@ -7,7 +7,7 @@ public class BossEndingTrigger : MonoBehaviour
     [Header("씬 설정")]
     [SerializeField] private string endingSceneName = "EndingScene";
     [SerializeField] private float delayBeforeFade = 1.5f;
-    [SerializeField] private float fallbackLoadDelay = 1.0f;
+    [SerializeField] private float fallbackLoadDelay = 0f;
 
     private bool isTriggered = false;
 
@@ -15,32 +15,25 @@ public class BossEndingTrigger : MonoBehaviour
     {
         if (isTriggered) return;
         isTriggered = true;
-
         StartCoroutine(LoadEndingRoutine());
     }
 
     private IEnumerator LoadEndingRoutine()
     {
-        if (delayBeforeFade > 0f)
+        float elapsed = 0f;
+        while (elapsed < delayBeforeFade)
         {
-            float elapsed = 0f;
-            while (elapsed < delayBeforeFade)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                yield return null;
-            }
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
         }
 
         Time.timeScale = 1f;
 
-        SceneFader fader = FindFirstObjectByType<SceneFader>();
-        if (fader != null)
+        if (fallbackLoadDelay > 0f)
         {
-            fader.StartCoroutine("FadeAndLoad", endingSceneName);
-            yield break;
+            yield return new WaitForSecondsRealtime(fallbackLoadDelay);
         }
 
-        yield return new WaitForSecondsRealtime(fallbackLoadDelay);
         SceneManager.LoadScene(endingSceneName);
     }
 }
