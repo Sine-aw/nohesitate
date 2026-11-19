@@ -32,6 +32,15 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (Time.timeScale == 0f || (GameManager.Instance != null && GameManager.Instance.IsInputBlocked))
+        {
+            if (animator != null)
+            {
+                animator.SetFloat("speed", 0f);
+            }
+            return;
+        }
+
         Keyboard keyboard = Keyboard.current;
 
         if (keyboard == null)

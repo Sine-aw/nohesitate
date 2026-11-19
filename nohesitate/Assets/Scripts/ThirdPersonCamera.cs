@@ -31,6 +31,11 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void Update()
     {
+        if (Time.timeScale == 0f || (GameManager.Instance != null && GameManager.Instance.IsInputBlocked))
+        {
+            return;
+        }
+
         Mouse mouse = Mouse.current;
 
         if (mouse == null)

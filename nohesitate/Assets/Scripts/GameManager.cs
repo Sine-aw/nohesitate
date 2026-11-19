@@ -133,4 +133,10 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene("Title");
     }
+
+    public bool IsInputBlocked =>
+        isPaused ||
+        (pauseMenuPanel != null && pauseMenuPanel.activeSelf) ||
+        (settingsPanel != null && settingsPanel.activeSelf) ||
+        (gameOverPanel != null && gameOverPanel.activeSelf);
 }
